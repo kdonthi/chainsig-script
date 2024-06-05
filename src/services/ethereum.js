@@ -82,7 +82,7 @@ export class Ethereum {
       return ('0' + (byte & 0xFF).toString(16)).slice(-2);
     }).join('')
   }
-  async requestSignatureToMPCNearContract(contract, nearConnection, path, transaction, ethPayload, sender) {
+  async requestSignatureToMPCNearContract(contract, nearConnection, path, transaction, ethPayload) {
     // Ask the MPC to sign the payload
     const hexEthPayload = this.toHexString(ethPayload);
     console.log("ETH Payload", ethPayload);
@@ -124,7 +124,7 @@ export class Ethereum {
       // const signature = candidates.find((c) => c.getSenderAddress().toString().toLowerCase() === sender.toLowerCase());
 
       candidates.forEach((c) => {
-        console.log(`Sender Address: ${c.getSenderAddress()}, Tx: ${c}`)
+        console.log(`Sender Address: ${c.getSenderAddress()}, Tx: ${c} JSON: ${c.toJSON()}`)
       })
 
       // if (!signature) {
