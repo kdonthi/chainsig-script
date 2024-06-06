@@ -47,13 +47,13 @@ export class Ethereum {
     const gasPrice = await this.getGasPrice();
     // Construct transaction
     const transactionData = {
-      to: sender,
+      to: sepoliaContract,
       nonce: nonce,
       data: data,
       value: 0,
       chain: this.chain_id,
-      gasLimit: 22000,
-      gasPrice: gasPrice,
+      gasLimit: 70000,
+      gasPrice: gasPrice + 1000000000,
     };
 
     // Return the message hash

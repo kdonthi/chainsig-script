@@ -89,7 +89,7 @@ export function EthereumView({ props: { setStatus, MPC_CONTRACT, NEAR_ACCOUNT } 
       const signedTransaction = await Eth.sign(wallet, MPC_CONTRACT, transaction, payload, derivationPath, senderAddress);
       // const signedTransaction = await Eth.requestSignatureToMPCNearContract(wallet, derivationPath, transaction, payload, senderAddress);
       setSignedTransaction(signedTransaction);
-      setStatus(`✅ Signed payload ready to be relayed to the Ethereum network: ${signedTransaction}`);
+      setStatus(`✅ Signed payload ready to be relayed to the Ethereum network`);
       setStep('relay');
     } catch (e) {
       setStatus(`❌ Error: ${e.message}`);
