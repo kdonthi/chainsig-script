@@ -1,11 +1,12 @@
 import {ethers} from 'ethers';
-import BN from "bn.js";
+
+const privateKey = "PRIVATE_KEY";
 
 // Configure your provider (e.g., Infura, Alchemy, or a local node)
 const provider = new ethers.InfuraProvider('sepolia', 'c2a3c6cad8844df4a79998c898822291');
 
 // Set up your wallet (private key should be kept secret and secure)
-const wallet = new ethers.Wallet('5711e7163d288fbc77e7939018916ef96c37e13c41ad9f24ba220e4ca39f07b1', provider);
+const wallet = new ethers.Wallet(privateKey, provider);
 
 // Define the faucet contract address
 const faucetAddress = '0x6d454714c3Ac6D2deB4eA123254BD87DD14Fd729';
