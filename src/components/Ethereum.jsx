@@ -5,13 +5,14 @@ import { Ethereum } from "../services/ethereum";
 import { useDebounce } from "../hooks/debounce";
 import PropTypes from 'prop-types';
 import * as nearAPI from "near-api-js";
+import BN from "bn.js";
 
 const Sepolia = 11155111;
 const Eth = new Ethereum('https://rpc2.sepolia.org', Sepolia);
 const { connect, keyStores, WalletConnection, Contract } = nearAPI;
 const myKeyStore = new keyStores.BrowserLocalStorageKeyStore();
 
-export function EthereumView({ props: { setStatus, MPC_CONTRACT } }) {
+export function EthereumView({ props: { setStatus, MPC_CONTRACT, NEAR_ACCOUNT } }) {
   const { wallet, signedAccountId } = useContext(NearContext);
 
   const [loading, setLoading] = useState(false);
@@ -23,7 +24,6 @@ export function EthereumView({ props: { setStatus, MPC_CONTRACT } }) {
   const derivationPath = useDebounce(derivation, 1000);
 
   const [nearAccount, setNearAccount] = useState(null);
-  const [contract, setContract] = useState(null);
 
   useEffect(() => {
     async function initWallet() {
@@ -39,16 +39,16 @@ export function EthereumView({ props: { setStatus, MPC_CONTRACT } }) {
       const nearConnection = await connect(connectionConfig);
 
       if (nearAccount === null) {
-        const account = await nearConnection.account("blobfishy.testnet");
+        const account = await nearConnection.account();
         setNearAccount(account);
       }
 
-      const key = await myKeyStore.getKey("testnet", "blobfishy.testnet");
+      const key = await myKeyStore.getKey("testnet", NEAR_ACCOUNT);
       console.log("keY", key);
       if (key === null) {
         const walletConnection = new WalletConnection(nearConnection, "kaushiksapp");
         walletConnection.requestSignIn({
-          contractId: "blobfishy.testnet" // TODO where do we get the wallet?
+          contractId: NEAR_ACCOUNT // TODO where do we get the wallet?
         }).catch((e) => {
           setStatus(`Error connecting to wallet ${e}`)
         });
@@ -57,21 +57,6 @@ export function EthereumView({ props: { setStatus, MPC_CONTRACT } }) {
 
     initWallet();
   }, []);
-
-  useEffect(() => {
-    if (nearAccount) {
-      const contract = new Contract(
-          nearAccount, // the account object that is connecting
-          "blobfishy.testnet",
-          {
-            changeMethods: ["sign"], // change methods modify state
-          }
-      );
-      // You can now use the contract instance as needed
-      console.log("Contract initialized:", contract);
-      setContract(contract);
-    }
-  }, [nearAccount]); // This effect runs whenever nearAccount is set
 
   useEffect(() => {
     setSenderAddress('Waiting for you to stop typing...')
@@ -101,9 +86,11 @@ export function EthereumView({ props: { setStatus, MPC_CONTRACT } }) {
     setStatus(`🕒 Asking ${MPC_CONTRACT} to sign the transaction, this might take a while`);
 
     try {
-      const signedTransaction = await Eth.requestSignatureToMPCNearContract(MPC_CONTRACT, wallet, derivationPath, transaction, payload);
-      setStatus(`✅ Relaying tx to the Ethereum network`, signedTransaction);
-      await relayTransaction(signedTransaction);
+      const signedTransaction = await Eth.sign(wallet, MPC_CONTRACT, transaction, payload, derivationPath, senderAddress);
+      // const signedTransaction = await Eth.requestSignatureToMPCNearContract(wallet, derivationPath, transaction, payload, senderAddress);
+      setSignedTransaction(signedTransaction);
+      setStatus(`✅ Signed payload ready to be relayed to the Ethereum network: ${signedTransaction}`);
+      setStep('relay');
     } catch (e) {
       setStatus(`❌ Error: ${e.message}`);
       setLoading(false);
@@ -111,7 +98,8 @@ export function EthereumView({ props: { setStatus, MPC_CONTRACT } }) {
   }
 
 
-  async function relayTransaction(signedTransaction) {
+
+  async function relayTransaction() {
     setLoading(true);
     setStatus('🔗 Relaying transaction to the Ethereum network... this might take a while');
 
@@ -147,7 +135,7 @@ export function EthereumView({ props: { setStatus, MPC_CONTRACT } }) {
 
       <div className="text-center">
         {step === 'request' && <button className="btn btn-primary text-center" onClick={UIChainSignature} disabled={loading}> Request Signature </button>}
-        {/*{step === 'relay' && <button className="btn btn-success text-center" onClick={relayTransaction} disabled={loading}> Relay Transaction </button>}*/}
+        {step === 'relay' && <button className="btn btn-success text-center" onClick={relayTransaction} disabled={loading}> Relay Transaction </button>}
       </div>
     </>
   )
@@ -157,5 +145,6 @@ EthereumView.propTypes = {
   props: PropTypes.shape({
     setStatus: PropTypes.func.isRequired,
     MPC_CONTRACT: PropTypes.string.isRequired,
+    NEAR_ACCOUNT: PropTypes.string.isRequired
   }).isRequired
 };

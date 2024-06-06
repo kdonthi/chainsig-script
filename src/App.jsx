@@ -6,7 +6,9 @@ import { Wallet } from "./services/near-wallet";
 import { EthereumView } from "./components/Ethereum";
 
 // CONSTANTS
-const MPC_PROXY_CONTRACT = "blobfishy.testnet";
+const MPC_PROXY_CONTRACT = 'v2.multichain-mpc.testnet';
+// const MPC_PROXY_CONTRACT = 'blobfishy.testnet';
+const NEAR_ACCOUNT = 'blobfishy.testnet';
 
 // NEAR WALLET
 const wallet = new Wallet({ networkId: 'testnet', createAccessKeyFor: MPC_PROXY_CONTRACT });
@@ -28,7 +30,7 @@ function App() {
 
         {signedAccountId &&
           <div style={{ width: '50%', minWidth: '400px' }}>
-              <EthereumView props={{ setStatus, MPC_CONTRACT: MPC_PROXY_CONTRACT }} />
+              <EthereumView props={{ setStatus, MPC_CONTRACT: MPC_PROXY_CONTRACT, NEAR_ACCOUNT: NEAR_ACCOUNT }} />
           </div>
         }
 
