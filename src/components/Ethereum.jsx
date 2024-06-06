@@ -44,7 +44,6 @@ export function EthereumView({ props: { setStatus, MPC_CONTRACT, NEAR_ACCOUNT } 
       }
 
       const key = await myKeyStore.getKey("testnet", NEAR_ACCOUNT);
-      console.log("keY", key);
       if (key === null) {
         const walletConnection = new WalletConnection(nearConnection, "kaushiksapp");
         walletConnection.requestSignIn({
@@ -110,7 +109,7 @@ export function EthereumView({ props: { setStatus, MPC_CONTRACT, NEAR_ACCOUNT } 
       </>
       );
     } catch (e) {
-      setStatus(`❌ Error: ${e.message} Data: ${e}`);
+      setStatus(`❌ Error: ${e.message} Reason: ${e.reason}}`);
     }
 
     setStep('request');
