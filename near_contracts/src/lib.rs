@@ -30,7 +30,7 @@ pub struct Contract {
 impl Contract {
     // proxy to call MPC_CONTRACT_ACCOUNT_ID method sign if COST is deposited
     #[payable]
-    pub fn sign(&mut self, rlp_payload: [u8; 32], path: String, key_version: u32) -> Promise {
+    pub fn sign(&mut self, rlp_payload: String, path: String, key_version: u32) -> Promise {
         let sender = env::predecessor_account_id();
         let result = self.users_to_time.get(&sender);
 
@@ -52,15 +52,10 @@ impl Contract {
             .try_into()
             .unwrap();
 
-        // check deposit requirement, contract owner doesn't pay
-        let deposit = env::attached_deposit();
-        if !owner {
-            require!(deposit >= COST, "pay the piper");
-        }
 
         // call mpc sign and return promise
         mpc::ext(MPC_CONTRACT_ACCOUNT_ID.parse().unwrap())
             .with_static_gas(Gas::from_tgas(100))
-            .sign(reversed_rlp_payload, path, key_version)
+            .sign(payload, path, key_version)
     }
 }
