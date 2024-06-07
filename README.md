@@ -25,3 +25,4 @@ npm run dev # or yarn dev
 
 > [!CAUTION]
 > Chain Signatures are currently in `alpha` and should only be used in a `testnet` environment.
+# NEAR-MPC-Faucet
